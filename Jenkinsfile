@@ -25,9 +25,9 @@ pipeline{
             steps{
                     sh "ansible-playbook playbook1.yml"			
 					}
-	        }
+	        }*/
 			}
-	post{
+	/*post{
 		success{
 			sh 'terraform destroy -auto-approve'
 		}
