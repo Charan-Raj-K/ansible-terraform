@@ -1,20 +1,54 @@
 ---
-- name: Configure Jenkins Server
-  hosts: jenkins
+- hosts: all
+  gather_facts: false
+  become: true
   tasks:
 
-    - name: Install Java Requirements
-      apt:
-        update_cache: yes
-        name: default-jdk
-      become: yes
+  - name: install wget
+    yum:
+     name: wget
+     state: present
 
-    - name: Install Jenkins
-      shell: | 
-        wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
-        sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
-        sudo apt-get update -y
-        sudo apt-get install jenkins -y
-    - name: Run Jenkins
-      shell: /etc/init.d/jenkins start
-      become: yes
+  - name: install openjdk
+    yum:
+     name: java-1.8.0-openjdk
+     state: present
+
+  - name: download jenkins.repo
+    get_url:
+     url: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+     dest: /etc/yum.repos.d/jenkins.repo
+
+  - name: import jenkins key
+    rpm_key:
+     state: present
+     key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+  - name: install jenkins
+    yum:
+     name: jenkins
+     state: present
+
+  - name: start jenkins
+    systemd:
+     name: jenkins
+     state: started
+
+  - name: enable jenkins
+    systemd:
+     name: jenkins
+     enabled: true
+
+  - name: sleep for 30 seconds and continue with play
+    wait_for:
+     delay: 30
+     port: 8080
+
+  - name: init password jenkin
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+    changed_when: false
+    register: result
+
+  - name: print init password jenkins
+    debug:
+     var: result.stdout
