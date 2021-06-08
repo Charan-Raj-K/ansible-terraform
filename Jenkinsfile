@@ -21,7 +21,7 @@ pipeline{
                     sh 'terraform apply -auto-approve'
                 }
             }
-	stage ('Run Ansible Playbook'){
+	/*stage ('Run Ansible Playbook'){
             steps{
                     sh "ansible-playbook playbook1.yml"			
 					}
@@ -31,7 +31,7 @@ pipeline{
 		success{
 			sh 'terraform destroy -auto-approve'
 		}
-	}
+	}*/
   }
 	
 	def getTerraformPath(){
